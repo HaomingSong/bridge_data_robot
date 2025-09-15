@@ -33,13 +33,16 @@ class WidowXConfigs:
         "start_state": [0.3, 0.0, 0.15, 0, 0, 0, 1], # pose when reset is called
         "skip_move_to_neutral": False,
         "return_full_image": False,
-        "camera_topics": [{"name": "/blue/image_raw"}],
+        # "camera_topics": [{"name": "/blue/image_raw"}],
+        "camera_topics": [{"name": '/D435/color/image_raw'}],
+        'depth_camera_topics': [{"name": '/D435/depth/image_rect_raw', "dtype": '16UC1'}],
     }
 
     DefaultActionConfig = ActionConfig(
         port_number=5556,
         action_keys=["init", "move", "gripper", "reset", "step_action", "reboot_motor"],
-        observation_keys=["image", "state", "full_image"],
+        observation_keys=["image", "state", "full_image"], # observation_keys for the server to pub every time when the client request
+        # observation_keys=["image", "state", "full_image", "depth_image"], # observation_keys for the server to pub every time when the client request
         broadcast_port=5556 + 1,
     )
 
@@ -117,6 +120,13 @@ class WidowXActionServer():
             cam_imtopic.append(imtopic_obj)
         _env_params["camera_topics"] = cam_imtopic
 
+        if "depth_camera_topics" in _env_params:
+            depth_imtopic = []
+            for cam in _env_params["depth_camera_topics"]:
+                imtopic_obj = IMTopic.from_dict(cam)
+                depth_imtopic.append(imtopic_obj)
+            _env_params["depth_camera_topics"] = depth_imtopic
+
         def get_tf_mat(pose):
             # convert pose to a 4x4 tf matrix, rpy to quat
             quat = quaternion_from_euler(pose[3], pose[4], pose[5])
@@ -170,15 +180,17 @@ class WidowXActionServer():
         self.bridge_env.controller().reboot_motor(joint_name)
         return WidowXStatus.SUCCESS
 
-    def __observe(self, types: list) -> dict:
+    def __observe(self, types: set) -> dict:
         if self.bridge_env:
             # we will default return image and proprio only
             obs = self.bridge_env.current_obs()
             obs = {
-                "image": obs["image"],
+                "image": obs["image"], # 1D Image Array
                 "state": obs["state"],
-                "full_image": mat_to_jpeg(obs["full_image"][0])  # faster
+                "full_image": mat_to_jpeg(obs["full_image"][0]),  # faster
+                "depth_image": obs['full_obs']['depth_images'][0]
             }
+            obs = {key: obs[key] for key in types if key in obs}
         else:
             # use dummy img with random noise
             img = np.random.randint(0, 255, (480, 640, 3), dtype=np.uint8)
@@ -362,6 +374,7 @@ def main():
                 # this is a blocking call
                 widowx_server.start()
             except Exception as e:
+                # HACK: may casue system brake down
                 if e == KeyboardInterrupt:
                     break
                 print(traceback.format_exc())

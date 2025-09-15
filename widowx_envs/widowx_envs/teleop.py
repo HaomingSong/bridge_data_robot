@@ -18,10 +18,17 @@ def show_video(client, full_image=True):
     if full_image:
         img = res["full_image"]
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        depth = res["depth_image"]
     else:
         img = res["image"]
         img = (img.reshape(3, 256, 256).transpose(1, 2, 0) * 255).astype(np.uint8)
+    depth_display = cv2.normalize(depth, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
+    # flip image both upside down and left to right
+    img = cv2.flip(img, -1)
+    depth_display = cv2.flip(depth_display, -1)
     cv2.imshow("Robot Camera", img)
+    cv2.imshow("Depth Image", depth_display)
     cv2.waitKey(20)  # 20 ms
 
 print_yellow = lambda x: print("\033[93m {}\033[00m" .format(x))
