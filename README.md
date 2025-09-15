@@ -5,6 +5,37 @@ Code for controlling Trossen WidowX robot arms.
 - `widowx_envs`: contains the `widowx_envs` Python package with all of the WidowX controller code.
 - `docker_compose.yml`: contains all of the docker-compose services that will be used to run the robot.
 
+## 🚩 **About This Fork**
+
+> **⚡️ Enhanced Official Deployment for Real Robots! ⚡️**
+
+This repository is a **feature-rich fork** of [`rail-berkeley/bridge_data_robot`](https://github.com/rail-berkeley/bridge_data_robot), serving as the **official real-robot deployment code** for several high-profile projects:
+
+| Project | Description | Stars |
+|---------|-------------|-------|
+| [**EO-1**](https://eo-robotics.ai/eo-1)<br/>[GitHub](https://github.com/EO-Robotics/EO-1) | An **open unified embodied foundation model** for general robot control, trained on interleaved vision-text-action data | ![Stars](https://img.shields.io/github/stars/EO-Robotics/EO-1) |
+| [**Hume**](https://hume-vla.github.io)<br/>[GitHub](https://github.com/hume-vla/hume) | A **dual-system VLA** with System-2 style reasoning | ![Stars](https://img.shields.io/github/stars/hume-vla/hume) |
+| [**SpatialVLA**](https://spatialvla.github.io/)<br/>[GitHub](https://github.com/SpatialVLA/SpatialVLA) | A **spatial-enhanced vision-language-action model** trained on **1.1M real robot episodes** | ![Stars](https://img.shields.io/github/stars/SpatialVLA/SpatialVLA) |
+
+
+## 🚀 **What's Improved in This Fork?**
+
+✨ **Major Enhancements:**
+- **Realsense D435 Support:** Seamlessly read RGB and Depth streams from Intel Realsense D435 cameras.
+- **Robustness:** Fixed several bugs in the WidowX arm control pipeline for smoother operation.
+- **Better Compatibility:** Improved environment compatibility across a wide range of host setups.
+
+
+> **Notice!**  
+>  
+> If you need to use RealSense cameras within ROS, we recommend avoiding Docker and instead using a two-machine server–client setup:
+>
+> - **GPU workstation:** runs policy/inference client  
+> - **NUC:** runs ROS with `widowx_envs` server installed natively (no Docker)
+>
+> **Reason:** `librealsense` depends on Linux kernel modules and udev rules; Docker cannot fully isolate or manage these kernel-level dependencies reliably. Use the server–client method documented below, with the NUC installing ROS directly on the host OS.
+
+
 ## Setup
 
 First, install the dependencies on the host machine by running `./host_install.sh`.
