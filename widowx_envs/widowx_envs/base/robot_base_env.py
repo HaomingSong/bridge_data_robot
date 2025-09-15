@@ -86,7 +86,8 @@ class RobotBaseEnv(BaseEnv):
         self._reset_counter, self._previous_target_qpos = 0, None
 
         if not self._hp.start_at_current_pos:
-            self._controller.move_to_neutral(duration=3)
+            # self._controller.move_to_neutral(duration=3)
+            self.move_to_neutral(duration=3)
 
         self.action_space = spaces.Box(
             np.asarray([-0.05, -0.05, -0.05, -0.25, -0.25, -0.25, 0.]),
