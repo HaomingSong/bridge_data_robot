@@ -71,6 +71,8 @@ def process_camera_connector_chart():
     topic_names = []
     for topic_name, usb_id in connector_chart_dict.items():
         dev_number = get_dev(output_string, usb_id)
+        if topic_name == 'D435':
+            dev_number = '4'
         providers.append(dev_number)
         topic_names.append(topic_name)
     return providers, topic_names
@@ -93,6 +95,8 @@ def main():
     topic_names = []
     if get_param("~camera_connector_chart"):
         video_stream_providers, topic_names = process_camera_connector_chart()
+        # rospy.logerr("video_stream_provider is: %s", video_stream_providers)
+        # rospy.logerr("topic_names are: %s", topic_names)
     else:
         video_stream_provider = get_param("~video_stream_provider")
         parsed_video_stream_provider = eval(video_stream_provider)

@@ -6,7 +6,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-c"]
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get dist-upgrade -y && \
+    apt-get install -y --no-install-recommends \
     build-essential \
     git \
     python3-pip \
@@ -28,16 +31,28 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     unzip \
     ffmpeg \
     git-lfs \
+    libssl-dev \
+    libusb-1.0-0-dev \
+    libudev-dev \
+    pkg-config \
+    libgtk-3-dev \
+    cmake \
+    build-essential \
+    libglfw3-dev \
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
+    at \
+    linux-headers-5.15.0-124-generic \
+    bc \
+    udev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
 
 # Installs ROS
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 RUN apt-get update -y && apt-get install -y \
     ros-noetic-ros-base \
-    ros-noetic-realsense2-camera \
     ros-noetic-video-stream-opencv \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -49,6 +64,33 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # from now on run build commands as user $USER_ID
 USER ${USER_ID}
+
+# Install Librealsense
+RUN cd ~ && \
+    git clone https://github.com/IntelRealSense/librealsense.git
+RUN cd ~/librealsense && \
+    ./scripts/setup_udev_rules.sh && \
+    ./scripts/patch-realsense-ubuntu-lts-hwe.sh && \
+    mkdir build && cd build && \
+    cmake ../
+RUN sudo make uninstall && make clean && make -j$(($(nproc)-1)) && sudo make -j$(($(nproc)-1)) install
+
+# Install Realsense ROS
+RUN mkdir -p ~/realsense_ws/src && \
+    cd ~/realsense_ws/src && \
+    git clone https://github.com/IntelRealSense/realsense-ros.git
+RUN cd ~/realsense_ws/src/realsense-ros && \
+    git checkout `git tag | sort -V | grep -P "^2.\d+\.\d+" | tail -1` && \
+    cd ..
+RUN source /opt/ros/noetic/setup.bash && \
+    catkin_init_workspace && \
+    cd .. && \
+    catkin_make clean && \
+    catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release && \
+    catkin_make install && \
+    echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc && \
+    source ~/.bashrc
+
 
 # install interbotic_ros_arms repo
 RUN curl 'https://raw.githubusercontent.com/Interbotix/interbotix_ros_manipulators/834edcbe6b955497d10ebc20ea9242c3f61e8fd1/interbotix_ros_xsarms/install/amd64/xsarm_amd64_install.sh' \
@@ -71,7 +113,7 @@ ENV PYTHONPATH="${PYTHONPATH}:/home/${USER_ID}/interbotix_ws/src/widowx_envs"
 ENV ROBONETV2_ARM=wx250s
 ENV DATA=/home/robonet/trainingdata
 ENV EXP=/home/robonet/experiments
-ENV REALSENSE_SERIAL=920312072629
+ENV REALSENSE_SERIAL=051122070438
 
 # build interbox ros packages
 RUN source /opt/ros/noetic/setup.bash \

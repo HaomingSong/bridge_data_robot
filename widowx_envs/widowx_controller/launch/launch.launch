@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--standard launch configuration, supporting standard webcams -->
 <launch>
     <arg name="video_stream_provider" default="0" />

@@ -10,7 +10,7 @@
     <!-- defines if the script should try to automatically reconnect if the frame was not captured -->
     <arg name="retry_on_fail" default="false" />
     <!-- path to the connector chart if should be used -->
-    <arg name="camera_connector_chart" default="" />
+    <arg name="camera_connector_chart" default="/home/haoming/projects/vla_deploy/bridge_data_robot/usb_connector_chart.yml" />
     <arg name="buffer_queue_size" default="1" />
     <arg name="python_node" default="false" />
 
