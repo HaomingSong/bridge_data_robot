@@ -26,13 +26,13 @@ This repository is a **feature-rich fork** of [`rail-berkeley/bridge_data_robot`
 - **Better Compatibility:** Improved environment compatibility across a wide range of host setups.
 
 
-> [!NOTE]
-> If you need to use RealSense cameras within ROS, we recommend avoiding Docker and instead using a two-machine server–client setup:
+> [!NOTE]  
+> If you need to use RealSense cameras within ROS, we recommend avoiding Docker and instead using a two-machine server–client setup:  
 >
 > - **GPU workstation:** runs policy/inference client  
-> - **NUC:** runs ROS with `widowx_envs` server installed natively (no Docker)
+> - **NUC:** runs ROS with `widowx_envs` server installed natively (no Docker)  
 >
-> **Reason:** `librealsense` depends on Linux kernel modules and udev rules; Docker cannot fully isolate or manage these kernel-level dependencies reliably. Use the server–client method documented below, with the NUC installing ROS directly on the host OS.epends on Linux kernel modules and udev rules; Docker cannot fully isolate or manage these kernel-level dependencies reliably. Use the server–client method documented below, with the NUC installing ROS directly on the host OS.
+> **Reason:** `librealsense` depends on Linux kernel modules and udev rules; Docker cannot fully isolate or manage these kernel-level dependencies reliably. Use the server–client method documented below, with the NUC installing ROS directly on the host OS.
 
 
 ## Setup
